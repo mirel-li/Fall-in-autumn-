@@ -9,14 +9,14 @@
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
   :root {
-    --ink: #1a1612;
-    --deep: #2d2420;
-    --umber: #6b5a4e;
-    --parchment: #c4a882;
-    --moss: #8a7560;
-    --chestnut: #3d2f2a;
-    --text: #d4c4aa;
-    --dim: #9a8878;
+    --ink: #2e2720;
+    --deep: #3d332c;
+    --umber: #7a6a5c;
+    --parchment: #cdb28e;
+    --moss: #96836e;
+    --chestnut: #52403a;
+    --text: #ddd0b8;
+    --dim: #b0a090;
   }
 
   body {
@@ -761,9 +761,11 @@ function renderPage(idx) {
         ${fieldBlock('Фамилия', 'last_name', false, false, 'Фамилия...')}
       </div>
       ${fieldBlock('Прозвище', 'nickname', false, false, 'Прозвище...')}
-      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;margin-top:14px;">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:14px;">
         ${fieldBlock('Возраст', 'age', false, false, '—')}
         ${fieldBlock('Дата рождения', 'birthday', false, false, 'дд.мм.гггг')}
+      </div>
+      <div style="margin-top:14px;">
         ${fieldBlock('Профессия', 'profession', false, false, '—')}
       </div>
     </div>
