@@ -1,0 +1,1026 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>✦ ДОСЬЕ ПЕРСОНАЖЕЙ</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400;1,700&family=IM+Fell+English:ital@0;1&family=Courier+Prime&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --ink: #1a1612;
+    --deep: #2d2420;
+    --umber: #6b5a4e;
+    --parchment: #c4a882;
+    --moss: #8a7560;
+    --chestnut: #3d2f2a;
+    --text: #d4c4aa;
+    --dim: #9a8878;
+  }
+
+  body {
+    background-color: var(--ink);
+    color: var(--text);
+    font-family: 'IM Fell English', Georgia, serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* Noise texture overlay */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 9999;
+    opacity: 0.6;
+  }
+
+  /* Layout */
+  .app {
+    display: flex;
+    min-height: 100vh;
+  }
+
+  /* Sidebar */
+  .sidebar {
+    width: 220px;
+    min-height: 100vh;
+    background: var(--deep);
+    border-right: 1px solid var(--chestnut);
+    display: flex;
+    flex-direction: column;
+    position: fixed;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    overflow-y: auto;
+    z-index: 100;
+  }
+
+  .sidebar-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: var(--moss);
+    padding: 28px 20px 16px;
+    border-bottom: 1px solid var(--chestnut);
+  }
+
+  .sidebar-title span {
+    display: block;
+    font-size: 1.1rem;
+    font-weight: 900;
+    letter-spacing: 0.05em;
+    color: var(--parchment);
+    font-style: italic;
+    margin-top: 4px;
+  }
+
+  .char-list {
+    list-style: none;
+    padding: 10px 0;
+    flex: 1;
+  }
+
+  .char-list li {
+    border-bottom: 1px solid rgba(61,47,42,0.4);
+  }
+
+  .char-btn {
+    width: 100%;
+    background: none;
+    border: none;
+    padding: 10px 20px;
+    text-align: left;
+    cursor: pointer;
+    color: var(--dim);
+    font-family: 'IM Fell English', serif;
+    font-size: 0.85rem;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    transition: background 0.2s, color 0.2s;
+  }
+
+  .char-btn:hover {
+    background: var(--chestnut);
+    color: var(--text);
+  }
+
+  .char-btn.active {
+    background: var(--chestnut);
+    color: var(--parchment);
+    border-left: 2px solid var(--parchment);
+  }
+
+  .char-btn .num {
+    font-family: 'Courier Prime', monospace;
+    font-size: 0.7rem;
+    color: var(--umber);
+    min-width: 20px;
+  }
+
+  .char-btn .name {
+    font-style: italic;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .char-btn .dot {
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    background: var(--moss);
+    flex-shrink: 0;
+    opacity: 0;
+  }
+
+  .char-btn.has-data .dot { opacity: 1; }
+
+  /* Main content */
+  .main {
+    margin-left: 220px;
+    flex: 1;
+    padding: 48px 60px 80px;
+    max-width: 900px;
+  }
+
+  /* Page header */
+  .page-header {
+    margin-bottom: 48px;
+    text-align: center;
+    position: relative;
+  }
+
+  .page-header::after {
+    content: '';
+    display: block;
+    width: 80px;
+    height: 1px;
+    background: var(--umber);
+    margin: 20px auto 0;
+  }
+
+  .page-eyebrow {
+    font-family: 'Courier Prime', monospace;
+    font-size: 0.7rem;
+    letter-spacing: 0.3em;
+    color: var(--umber);
+    text-transform: uppercase;
+    margin-bottom: 12px;
+  }
+
+  .page-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 2.8rem;
+    font-weight: 900;
+    font-style: italic;
+    color: var(--parchment);
+    line-height: 1.1;
+  }
+
+  .page-title .star {
+    font-style: normal;
+    color: var(--umber);
+    font-size: 1.5rem;
+    vertical-align: middle;
+  }
+
+  /* Photo slot */
+  .photo-section {
+    display: flex;
+    align-items: flex-start;
+    gap: 40px;
+    margin-bottom: 48px;
+  }
+
+  .photo-frame {
+    flex-shrink: 0;
+    width: 180px;
+  }
+
+  .photo-label {
+    font-family: 'Courier Prime', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 0.2em;
+    color: var(--umber);
+    text-transform: uppercase;
+    margin-bottom: 8px;
+  }
+
+  .photo-slot {
+    width: 180px;
+    height: 220px;
+    border: 1px solid var(--umber);
+    background: var(--deep);
+    position: relative;
+    cursor: pointer;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: border-color 0.2s;
+  }
+
+  .photo-slot:hover { border-color: var(--parchment); }
+
+  .photo-slot img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+
+  .photo-placeholder {
+    text-align: center;
+    color: var(--umber);
+    pointer-events: none;
+  }
+
+  .photo-placeholder svg { opacity: 0.4; }
+
+  .photo-placeholder p {
+    font-family: 'Courier Prime', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 0.1em;
+    margin-top: 8px;
+    opacity: 0.6;
+  }
+
+  .photo-remove {
+    position: absolute;
+    top: 6px;
+    right: 6px;
+    background: rgba(26,22,18,0.85);
+    border: 1px solid var(--umber);
+    color: var(--dim);
+    font-size: 0.65rem;
+    font-family: 'Courier Prime', monospace;
+    padding: 2px 6px;
+    cursor: pointer;
+    display: none;
+  }
+
+  .photo-slot:hover .photo-remove { display: block; }
+
+  .photo-input { display: none; }
+
+  /* Quote field top */
+  .char-quote-top {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+
+  .char-quote-top .field-label {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.4rem;
+    font-style: italic;
+    color: var(--parchment);
+    margin-bottom: 4px;
+  }
+
+  /* Sections */
+  .section {
+    margin-bottom: 44px;
+  }
+
+  .section-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.35em;
+    text-transform: uppercase;
+    color: var(--moss);
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+
+  .section-title::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--chestnut);
+  }
+
+  .section-title .ornament {
+    color: var(--umber);
+    font-style: normal;
+    font-size: 0.9rem;
+  }
+
+  /* Fields */
+  .fields-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px 32px;
+  }
+
+  .fields-grid.single { grid-template-columns: 1fr; }
+  .fields-grid.triple { grid-template-columns: 1fr 1fr 1fr; }
+
+  .field {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .field.span2 { grid-column: span 2; }
+
+  .field-label {
+    font-family: 'Courier Prime', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 0.15em;
+    color: var(--umber);
+    text-transform: uppercase;
+  }
+
+  input[type="text"],
+  textarea,
+  select {
+    background: transparent;
+    border: none;
+    border-bottom: 1px solid var(--chestnut);
+    color: var(--text);
+    font-family: 'IM Fell English', serif;
+    font-size: 0.92rem;
+    padding: 4px 0;
+    width: 100%;
+    outline: none;
+    transition: border-color 0.2s;
+    resize: none;
+    -webkit-appearance: none;
+  }
+
+  input[type="text"]:focus,
+  textarea:focus,
+  select:focus {
+    border-bottom-color: var(--parchment);
+  }
+
+  input[type="text"]::placeholder,
+  textarea::placeholder {
+    color: var(--chestnut);
+    font-style: italic;
+  }
+
+  textarea {
+    min-height: 64px;
+    line-height: 1.6;
+  }
+
+  /* Checkboxes */
+  .checkboxes {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px 24px;
+    margin-top: 6px;
+  }
+
+  .cb-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    font-family: 'IM Fell English', serif;
+    font-size: 0.88rem;
+    color: var(--dim);
+    transition: color 0.15s;
+    user-select: none;
+  }
+
+  .cb-item:hover { color: var(--text); }
+
+  .cb-item input[type="checkbox"] {
+    appearance: none;
+    width: 14px;
+    height: 14px;
+    border: 1px solid var(--umber);
+    background: transparent;
+    cursor: pointer;
+    position: relative;
+    flex-shrink: 0;
+    border-radius: 0;
+    transition: border-color 0.15s;
+  }
+
+  .cb-item input[type="checkbox"]:checked {
+    border-color: var(--parchment);
+    background: var(--chestnut);
+  }
+
+  .cb-item input[type="checkbox"]:checked::after {
+    content: '✕';
+    position: absolute;
+    top: -2px;
+    left: 1px;
+    font-size: 0.65rem;
+    color: var(--parchment);
+  }
+
+  /* Bullet fields */
+  .bullet-field {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+    margin-bottom: 8px;
+  }
+
+  .bullet-field::before {
+    content: '•';
+    color: var(--umber);
+    flex-shrink: 0;
+  }
+
+  /* Ornamental divider */
+  .divider {
+    text-align: center;
+    margin: 32px 0;
+    color: var(--umber);
+    font-size: 0.8rem;
+    letter-spacing: 0.5em;
+    opacity: 0.5;
+  }
+
+  /* Quote field */
+  .quote-field {
+    position: relative;
+    padding: 0 24px;
+  }
+
+  .quote-field::before,
+  .quote-field::after {
+    position: absolute;
+    font-family: 'Playfair Display', serif;
+    font-size: 4rem;
+    color: var(--umber);
+    opacity: 0.3;
+    line-height: 1;
+  }
+
+  .quote-field::before { content: '"'; top: -10px; left: 0; }
+  .quote-field::after { content: '"'; bottom: -30px; right: 0; }
+
+  .quote-field textarea {
+    font-size: 1rem;
+    font-style: italic;
+    text-align: center;
+    border-bottom: 1px solid var(--chestnut);
+    min-height: 50px;
+  }
+
+  /* Save bar */
+  .save-bar {
+    position: fixed;
+    bottom: 0;
+    left: 220px;
+    right: 0;
+    padding: 12px 60px;
+    background: linear-gradient(to top, var(--ink) 60%, transparent);
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    z-index: 50;
+  }
+
+  .btn-save {
+    background: none;
+    border: 1px solid var(--umber);
+    color: var(--parchment);
+    font-family: 'Courier Prime', monospace;
+    font-size: 0.72rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    padding: 10px 28px;
+    cursor: pointer;
+    transition: background 0.2s, border-color 0.2s;
+  }
+
+  .btn-save:hover {
+    background: var(--chestnut);
+    border-color: var(--parchment);
+  }
+
+  .btn-clear {
+    background: none;
+    border: none;
+    color: var(--umber);
+    font-family: 'Courier Prime', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: color 0.2s;
+    padding: 10px 0;
+  }
+
+  .btn-clear:hover { color: var(--text); }
+
+  .save-status {
+    font-family: 'Courier Prime', monospace;
+    font-size: 0.65rem;
+    color: var(--moss);
+    letter-spacing: 0.1em;
+    opacity: 0;
+    transition: opacity 0.4s;
+  }
+
+  .save-status.show { opacity: 1; }
+
+  /* Autosave indicator */
+  .autosave-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--moss);
+    opacity: 0;
+    transition: opacity 0.3s;
+  }
+
+  .autosave-dot.pulse {
+    opacity: 1;
+    animation: pulse 1s ease-out forwards;
+  }
+
+  @keyframes pulse {
+    0% { opacity: 1; transform: scale(1); }
+    100% { opacity: 0; transform: scale(1.5); }
+  }
+
+  /* Page fade */
+  .main {
+    animation: fadeIn 0.3s ease;
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(6px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* Responsive */
+  @media (max-width: 768px) {
+    .sidebar { width: 180px; }
+    .main { margin-left: 180px; padding: 32px 28px 80px; }
+    .fields-grid { grid-template-columns: 1fr; }
+    .fields-grid .span2 { grid-column: span 1; }
+    .save-bar { left: 180px; padding: 12px 28px; }
+    .photo-section { flex-direction: column; }
+  }
+
+  select option { background: var(--deep); }
+
+  .small-input { max-width: 200px; }
+</style>
+</head>
+<body>
+
+<div class="app">
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="sidebar-title">
+      ✦ Архив
+      <span>Персонажи</span>
+    </div>
+    <ul class="char-list" id="charList"></ul>
+  </aside>
+
+  <!-- Main -->
+  <main class="main" id="mainContent">
+    <!-- rendered dynamically -->
+  </main>
+</div>
+
+<!-- Save bar -->
+<div class="save-bar">
+  <button class="btn-save" onclick="saveCurrentChar()">Сохранить</button>
+  <button class="btn-clear" onclick="clearCurrentChar()">Очистить</button>
+  <div class="autosave-dot" id="autosaveDot"></div>
+  <div class="save-status" id="saveStatus">Сохранено</div>
+</div>
+
+<script>
+const TOTAL = 20;
+let currentChar = 0;
+let data = {};
+let autoSaveTimer = null;
+
+// Load all data
+function loadAll() {
+  for (let i = 0; i < TOTAL; i++) {
+    const raw = localStorage.getItem(`evermore_char_${i}`);
+    data[i] = raw ? JSON.parse(raw) : {};
+  }
+}
+
+function saveChar(idx) {
+  localStorage.setItem(`evermore_char_${idx}`, JSON.stringify(data[idx] || {}));
+}
+
+function getField(field) {
+  return (data[currentChar] || {})[field] || '';
+}
+
+function setField(field, value) {
+  if (!data[currentChar]) data[currentChar] = {};
+  data[currentChar][field] = value;
+  scheduleAutosave();
+  updateSidebarItem(currentChar);
+}
+
+function scheduleAutosave() {
+  clearTimeout(autoSaveTimer);
+  autoSaveTimer = setTimeout(() => {
+    saveChar(currentChar);
+    const dot = document.getElementById('autosaveDot');
+    dot.classList.remove('pulse');
+    void dot.offsetWidth;
+    dot.classList.add('pulse');
+  }, 1200);
+}
+
+function saveCurrentChar() {
+  saveChar(currentChar);
+  const s = document.getElementById('saveStatus');
+  s.classList.add('show');
+  setTimeout(() => s.classList.remove('show'), 2000);
+  updateSidebarItem(currentChar);
+}
+
+function clearCurrentChar() {
+  if (!confirm('Очистить все поля этого персонажа?')) return;
+  data[currentChar] = {};
+  saveChar(currentChar);
+  renderPage(currentChar);
+  updateSidebarItem(currentChar);
+}
+
+function hasData(idx) {
+  const d = data[idx] || {};
+  return Object.values(d).some(v => v && v !== '');
+}
+
+function getCharName(idx) {
+  const d = data[idx] || {};
+  const name = [d['first_name'], d['last_name']].filter(Boolean).join(' ');
+  return name || `Персонаж ${idx + 1}`;
+}
+
+function updateSidebarItem(idx) {
+  const btn = document.querySelector(`#charList li:nth-child(${idx+1}) .char-btn`);
+  if (!btn) return;
+  btn.querySelector('.name').textContent = getCharName(idx);
+  btn.classList.toggle('has-data', hasData(idx));
+}
+
+function buildSidebar() {
+  const list = document.getElementById('charList');
+  list.innerHTML = '';
+  for (let i = 0; i < TOTAL; i++) {
+    const li = document.createElement('li');
+    const btn = document.createElement('button');
+    btn.className = 'char-btn' + (i === currentChar ? ' active' : '') + (hasData(i) ? ' has-data' : '');
+    btn.innerHTML = `<span class="num">${String(i+1).padStart(2,'0')}</span><span class="dot"></span><span class="name">${getCharName(i)}</span>`;
+    btn.onclick = () => switchChar(i);
+    li.appendChild(btn);
+    list.appendChild(li);
+  }
+}
+
+function switchChar(idx) {
+  saveChar(currentChar);
+  currentChar = idx;
+  buildSidebar();
+  renderPage(idx);
+  window.scrollTo(0, 0);
+}
+
+// ---------- Field helpers ----------
+function tf(field, placeholder = '', multiline = false, extraClass = '') {
+  const val = getField(field);
+  if (multiline) {
+    return `<textarea data-field="${field}" placeholder="${placeholder}" class="${extraClass}" rows="3">${val}</textarea>`;
+  }
+  return `<input type="text" data-field="${field}" placeholder="${placeholder}" value="${escHtml(val)}" class="${extraClass}">`;
+}
+
+function escHtml(s) {
+  return String(s).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+function cb(field, label) {
+  const checked = getField(field) === '1' ? 'checked' : '';
+  return `<label class="cb-item"><input type="checkbox" data-field="${field}" ${checked}> ${label}</label>`;
+}
+
+function fieldBlock(label, field, multiline = false, span2 = false, placeholder = '') {
+  return `<div class="field${span2?' span2':''}">
+    <div class="field-label">${label}</div>
+    ${tf(field, placeholder, multiline)}
+  </div>`;
+}
+
+// ---------- Render ----------
+function renderPage(idx) {
+  const d = data[idx] || {};
+  const photoSrc = d['photo'] || '';
+
+  const html = `
+  <div class="page-header">
+    <div class="page-eyebrow">Страница ${String(idx+1).padStart(2,'0')} / ${TOTAL}</div>
+    <h1 class="page-title"><span class="star">✦</span> Досье персонажа</h1>
+  </div>
+
+  <!-- Photo + name -->
+  <div class="photo-section">
+    <div class="photo-frame">
+      <div class="photo-label">Фото</div>
+      <div class="photo-slot" onclick="triggerPhoto()">
+        ${photoSrc
+          ? `<img src="${photoSrc}" id="photoImg"><button class="photo-remove" onclick="removePhoto(event)">✕ убрать</button>`
+          : `<div class="photo-placeholder">
+              <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1"><rect x="3" y="3" width="18" height="18" rx="1"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>
+              <p>загрузить фото</p>
+            </div>`
+        }
+      </div>
+      <input type="file" accept="image/*" class="photo-input" id="photoInput" onchange="handlePhoto(event)">
+    </div>
+    <div class="char-quote-top">
+      <div class="field-label" style="font-size:0.65rem;letter-spacing:0.15em;color:var(--umber);text-transform:uppercase;font-family:'Courier Prime',monospace;margin-bottom:16px;">Имя и фамилия</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:20px;">
+        ${fieldBlock('Имя', 'first_name', false, false, 'Имя...')}
+        ${fieldBlock('Фамилия', 'last_name', false, false, 'Фамилия...')}
+      </div>
+      ${fieldBlock('Прозвище', 'nickname', false, false, 'Прозвище...')}
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;margin-top:14px;">
+        ${fieldBlock('Возраст', 'age', false, false, '—')}
+        ${fieldBlock('Дата рождения', 'birthday', false, false, 'дд.мм.гггг')}
+        ${fieldBlock('Профессия', 'profession', false, false, '—')}
+      </div>
+    </div>
+  </div>
+
+  <div class="divider">⸻ ✦ ⸻</div>
+
+  <!-- Личное -->
+  <div class="section">
+    <div class="section-title"><span class="ornament">I.</span> Личное</div>
+    <div class="fields-grid">
+      ${fieldBlock('Рост', 'height', false, false, '—')}
+      ${fieldBlock('Вес', 'weight', false, false, '—')}
+      ${fieldBlock('Национальность', 'nationality', false, false, '—')}
+      ${fieldBlock('Образование', 'education', false, false, '—')}
+      ${fieldBlock('Место жительства', 'location', false, true, '—')}
+    </div>
+  </div>
+
+  <div class="divider">⸻ ✦ ⸻</div>
+
+  <!-- Внешность -->
+  <div class="section">
+    <div class="section-title"><span class="ornament">II.</span> Внешность</div>
+    <div class="fields-grid">
+      ${fieldBlock('Цвет волос', 'hair', false, false, '—')}
+      ${fieldBlock('Цвет глаз', 'eyes', false, false, '—')}
+      ${fieldBlock('Цвет кожи', 'skin', false, false, '—')}
+      ${fieldBlock('Телосложение', 'body', false, false, '—')}
+    </div>
+    <div style="margin-top:18px;">
+      <div class="field-label" style="font-size:0.65rem;letter-spacing:0.15em;color:var(--umber);text-transform:uppercase;font-family:'Courier Prime',monospace;margin-bottom:10px;">Особые приметы</div>
+      <div class="checkboxes">
+        ${cb('mark_scar','Шрам')}
+        ${cb('mark_tattoo','Татуировки')}
+        ${cb('mark_mole','Родинки')}
+        ${cb('mark_piercing','Пирсинг')}
+      </div>
+      <div style="margin-top:12px;">${fieldBlock('Другое', 'mark_other', false, false, '...')}</div>
+    </div>
+    <div class="fields-grid" style="margin-top:18px;">
+      ${fieldBlock('Стиль одежды', 'style', false, false, '—')}
+      ${fieldBlock('Любимый парфюм', 'perfume', false, false, '—')}
+      ${fieldBlock('Манера речи', 'speech', false, false, '—')}
+      ${fieldBlock('Первое впечатление', 'impression', false, false, '—')}
+    </div>
+  </div>
+
+  <div class="divider">⸻ ✦ ⸻</div>
+
+  <!-- Характер -->
+  <div class="section">
+    <div class="section-title"><span class="ornament">III.</span> Характер</div>
+    <div class="field" style="margin-bottom:18px;">
+      <div class="field-label">Три главные черты</div>
+      <div class="bullet-field">${tf('trait_1','—')}</div>
+      <div class="bullet-field">${tf('trait_2','—')}</div>
+      <div class="bullet-field">${tf('trait_3','—')}</div>
+    </div>
+    <div class="fields-grid single">
+      ${fieldBlock('Сильные стороны', 'strengths', true, false, '...')}
+      ${fieldBlock('Слабости', 'weaknesses', true, false, '...')}
+      ${fieldBlock('Главный страх', 'fear', true, false, '...')}
+      ${fieldBlock('Главная мечта', 'dream', true, false, '...')}
+      ${fieldBlock('Главная цель', 'goal', true, false, '...')}
+      ${fieldBlock('Что скрывает', 'secret', true, false, '...')}
+      ${fieldBlock('Самая большая ложь самому себе', 'self_lie', true, false, '...')}
+    </div>
+  </div>
+
+  <div class="divider">⸻ ✦ ⸻</div>
+
+  <!-- Привычки -->
+  <div class="section">
+    <div class="section-title"><span class="ornament">IV.</span> Привычки</div>
+    <div class="checkboxes">
+      ${cb('h_coffee','Кофе')}
+      ${cb('h_tea','Чай')}
+      ${cb('h_alcohol','Алкоголь')}
+      ${cb('h_smoking','Курение')}
+      ${cb('h_sport','Спорт')}
+      ${cb('h_reading','Чтение')}
+      ${cb('h_music','Музыка')}
+      ${cb('h_night','Поздно ложится')}
+      ${cb('h_early','Рано встаёт')}
+      ${cb('h_perf','Перфекционист')}
+      ${cb('h_mess','Неряха')}
+      ${cb('h_impuls','Импульсивный')}
+    </div>
+    <div style="margin-top:14px;">${fieldBlock('Другое', 'habit_other', false, false, '...')}</div>
+  </div>
+
+  <div class="divider">⸻ ✦ ⸻</div>
+
+  <!-- Любимое -->
+  <div class="section">
+    <div class="section-title"><span class="ornament">V.</span> Любимое</div>
+    <div class="fields-grid">
+      ${fieldBlock('Цвет', 'fav_color', false, false, '—')}
+      ${fieldBlock('Еда', 'fav_food', false, false, '—')}
+      ${fieldBlock('Напиток', 'fav_drink', false, false, '—')}
+      ${fieldBlock('Музыка', 'fav_music', false, false, '—')}
+      ${fieldBlock('Фильм', 'fav_film', false, false, '—')}
+      ${fieldBlock('Сериал', 'fav_series', false, false, '—')}
+      ${fieldBlock('Книга', 'fav_book', false, false, '—')}
+      ${fieldBlock('Время года', 'fav_season', false, false, '—')}
+      ${fieldBlock('Место', 'fav_place', false, true, '—')}
+    </div>
+  </div>
+
+  <div class="divider">⸻ ✦ ⸻</div>
+
+  <!-- Прошлое -->
+  <div class="section">
+    <div class="section-title"><span class="ornament">VI.</span> Прошлое</div>
+    <div class="fields-grid single">
+      ${fieldBlock('Семья', 'family', true, false, '...')}
+      ${fieldBlock('Детство', 'childhood', true, false, '...')}
+      ${fieldBlock('Самое счастливое воспоминание', 'memory_happy', true, false, '...')}
+      ${fieldBlock('Самое болезненное воспоминание', 'memory_painful', true, false, '...')}
+      ${fieldBlock('Главная травма', 'trauma', true, false, '...')}
+    </div>
+  </div>
+
+  <div class="divider">⸻ ✦ ⸻</div>
+
+  <!-- Отношения -->
+  <div class="section">
+    <div class="section-title"><span class="ornament">VII.</span> Отношения</div>
+    <div class="fields-grid">
+      ${fieldBlock('Любовный интерес', 'love', false, false, '—')}
+      ${fieldBlock('Лучший друг', 'bestfriend', false, false, '—')}
+      ${fieldBlock('Враг', 'enemy', false, false, '—')}
+      ${fieldBlock('Наставник', 'mentor', false, false, '—')}
+      ${fieldBlock('Кому доверяет', 'trusts', false, false, '—')}
+      ${fieldBlock('Кого боится потерять', 'afraid_to_lose', false, false, '—')}
+    </div>
+  </div>
+
+  <div class="divider">⸻ ✦ ⸻</div>
+
+  <!-- Психология -->
+  <div class="section">
+    <div class="section-title"><span class="ornament">VIII.</span> Психология</div>
+    <div class="fields-grid">
+      ${fieldBlock('Темперамент', 'temperament', false, false, '—')}
+      ${fieldBlock('Тип личности (MBTI)', 'mbti', false, false, 'напр. INFJ')}
+      ${fieldBlock('Язык любви', 'love_language', false, false, '—')}
+      ${fieldBlock('Стиль привязанности', 'attachment', false, false, '—')}
+    </div>
+    <div class="fields-grid single" style="margin-top:14px;">
+      ${fieldBlock('Как ведёт себя в конфликте', 'in_conflict', true, false, '...')}
+      ${fieldBlock('Как переживает стресс', 'in_stress', true, false, '...')}
+    </div>
+  </div>
+
+  <div class="divider">⸻ ✦ ⸻</div>
+
+  <!-- Навыки -->
+  <div class="section">
+    <div class="section-title"><span class="ornament">IX.</span> Навыки</div>
+    <div class="fields-grid">
+      <div class="field">
+        <div class="field-label">Физические</div>
+        <div class="bullet-field">${tf('skill_phy_1','—')}</div>
+        <div class="bullet-field">${tf('skill_phy_2','—')}</div>
+        <div class="bullet-field">${tf('skill_phy_3','—')}</div>
+      </div>
+      <div class="field">
+        <div class="field-label">Интеллектуальные</div>
+        <div class="bullet-field">${tf('skill_int_1','—')}</div>
+        <div class="bullet-field">${tf('skill_int_2','—')}</div>
+        <div class="bullet-field">${tf('skill_int_3','—')}</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="divider">⸻ ✦ ⸻</div>
+
+  <!-- Арка персонажа -->
+  <div class="section">
+    <div class="section-title"><span class="ornament">X.</span> Арка персонажа</div>
+    <div class="fields-grid single">
+      ${fieldBlock('В начале истории', 'arc_start', true, false, '...')}
+      ${fieldBlock('Что хочет получить', 'arc_want', true, false, '...')}
+      ${fieldBlock('Что ему действительно нужно', 'arc_need', true, false, '...')}
+      ${fieldBlock('Главный внутренний конфликт', 'arc_conflict', true, false, '...')}
+      ${fieldBlock('Переломный момент', 'arc_turning', true, false, '...')}
+      ${fieldBlock('Кем становится в финале', 'arc_end', true, false, '...')}
+    </div>
+  </div>
+
+  <div class="divider">⸻ ✦ ⸻</div>
+
+  <!-- Цитата -->
+  <div class="section">
+    <div class="section-title"><span class="ornament">✦</span> Цитата персонажа</div>
+    <div class="quote-field">
+      <textarea data-field="quote" placeholder="..." rows="2">${getField('quote')}</textarea>
+    </div>
+  </div>
+
+  <div class="divider">⸻ ✦ ⸻</div>
+
+  <!-- Заметки -->
+  <div class="section">
+    <div class="section-title"><span class="ornament">✦</span> Заметки</div>
+    <div class="fields-grid single">
+      ${fieldBlock('', 'notes', true, false, '...')}
+    </div>
+  </div>
+
+  <div style="height:60px;"></div>
+  `;
+
+  document.getElementById('mainContent').innerHTML = html;
+  bindEvents();
+}
+
+function bindEvents() {
+  // Text inputs
+  document.querySelectorAll('input[type="text"][data-field], textarea[data-field]').forEach(el => {
+    el.addEventListener('input', () => setField(el.dataset.field, el.value));
+  });
+  // Checkboxes
+  document.querySelectorAll('input[type="checkbox"][data-field]').forEach(el => {
+    el.addEventListener('change', () => setField(el.dataset.field, el.checked ? '1' : '0'));
+  });
+}
+
+function triggerPhoto() {
+  document.getElementById('photoInput').click();
+}
+
+function handlePhoto(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = ev => {
+    setField('photo', ev.target.result);
+    saveChar(currentChar);
+    renderPage(currentChar);
+  };
+  reader.readAsDataURL(file);
+}
+
+function removePhoto(e) {
+  e.stopPropagation();
+  setField('photo', '');
+  saveChar(currentChar);
+  renderPage(currentChar);
+}
+
+// Init
+loadAll();
+buildSidebar();
+renderPage(0);
+</script>
+</body>
+</html>
