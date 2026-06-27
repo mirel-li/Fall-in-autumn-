@@ -3,608 +3,859 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>✦ ДОСЬЕ ПЕРСОНАЖЕЙ</title>
-<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400;1,700&family=IM+Fell+English:ital@0;1&family=Courier+Prime&display=swap" rel="stylesheet">
+<title>✦ Досье персонажей</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400;1,700&family=IM+Fell+English:ital@0;1&family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&display=swap" rel="stylesheet">
 <style>
-  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
-  :root {
-    --ink: #2e2720;
-    --deep: #3d332c;
-    --umber: #7a6a5c;
-    --parchment: #cdb28e;
-    --moss: #96836e;
-    --chestnut: #52403a;
-    --text: #ddd0b8;
-    --dim: #b0a090;
-  }
-
-  body {
-    background-color: var(--ink);
-    color: var(--text);
-    font-family: 'IM Fell English', Georgia, serif;
-    min-height: 100vh;
-    overflow-x: hidden;
-  }
-
-  /* Noise texture overlay */
-  body::before {
-    content: '';
-    position: fixed;
-    inset: 0;
-    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
-    pointer-events: none;
-    z-index: 9999;
-    opacity: 0.6;
-  }
-
-  /* Layout */
-  .app {
-    display: flex;
-    min-height: 100vh;
-  }
-
-  /* Sidebar */
-  .sidebar {
-    width: 220px;
-    min-height: 100vh;
-    background: var(--deep);
-    border-right: 1px solid var(--chestnut);
-    display: flex;
-    flex-direction: column;
-    position: fixed;
-    top: 0;
-    left: 0;
-    bottom: 0;
-    overflow-y: auto;
-    z-index: 100;
-  }
-
-  .sidebar-title {
-    font-family: 'Playfair Display', serif;
-    font-size: 0.75rem;
-    font-weight: 700;
-    letter-spacing: 0.25em;
-    text-transform: uppercase;
-    color: var(--moss);
-    padding: 28px 20px 16px;
-    border-bottom: 1px solid var(--chestnut);
-  }
-
-  .sidebar-title span {
-    display: block;
-    font-size: 1.1rem;
-    font-weight: 900;
-    letter-spacing: 0.05em;
-    color: var(--parchment);
-    font-style: italic;
-    margin-top: 4px;
-  }
-
-  .char-list {
-    list-style: none;
-    padding: 10px 0;
-    flex: 1;
-  }
-
-  .char-list li {
-    border-bottom: 1px solid rgba(61,47,42,0.4);
-  }
-
-  .char-btn {
-    width: 100%;
-    background: none;
-    border: none;
-    padding: 10px 20px;
-    text-align: left;
-    cursor: pointer;
-    color: var(--dim);
-    font-family: 'IM Fell English', serif;
-    font-size: 0.85rem;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    transition: background 0.2s, color 0.2s;
-  }
-
-  .char-btn:hover {
-    background: var(--chestnut);
-    color: var(--text);
-  }
-
-  .char-btn.active {
-    background: var(--chestnut);
-    color: var(--parchment);
-    border-left: 2px solid var(--parchment);
-  }
-
-  .char-btn .num {
-    font-family: 'Courier Prime', monospace;
-    font-size: 0.7rem;
-    color: var(--umber);
-    min-width: 20px;
-  }
-
-  .char-btn .name {
-    font-style: italic;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-  }
-
-  .char-btn .dot {
-    width: 5px;
-    height: 5px;
-    border-radius: 50%;
-    background: var(--moss);
-    flex-shrink: 0;
-    opacity: 0;
-  }
-
-  .char-btn.has-data .dot { opacity: 1; }
-
-  /* Main content */
-  .main {
-    margin-left: 220px;
-    flex: 1;
-    padding: 48px 60px 80px;
-    max-width: 900px;
-  }
-
-  /* Page header */
-  .page-header {
-    margin-bottom: 48px;
-    text-align: center;
-    position: relative;
-  }
-
-  .page-header::after {
-    content: '';
-    display: block;
-    width: 80px;
-    height: 1px;
-    background: var(--umber);
-    margin: 20px auto 0;
-  }
-
-  .page-eyebrow {
-    font-family: 'Courier Prime', monospace;
-    font-size: 0.7rem;
-    letter-spacing: 0.3em;
-    color: var(--umber);
-    text-transform: uppercase;
-    margin-bottom: 12px;
-  }
-
-  .page-title {
-    font-family: 'Playfair Display', serif;
-    font-size: 2.8rem;
-    font-weight: 900;
-    font-style: italic;
-    color: var(--parchment);
-    line-height: 1.1;
-  }
-
-  .page-title .star {
-    font-style: normal;
-    color: var(--umber);
-    font-size: 1.5rem;
-    vertical-align: middle;
-  }
-
-  /* Photo slot */
-  .photo-section {
-    display: flex;
-    align-items: flex-start;
-    gap: 40px;
-    margin-bottom: 48px;
-  }
-
-  .photo-frame {
-    flex-shrink: 0;
-    width: 180px;
-  }
-
-  .photo-label {
-    font-family: 'Courier Prime', monospace;
-    font-size: 0.65rem;
-    letter-spacing: 0.2em;
-    color: var(--umber);
-    text-transform: uppercase;
-    margin-bottom: 8px;
-  }
-
-  .photo-slot {
-    width: 180px;
-    height: 220px;
-    border: 1px solid var(--umber);
-    background: var(--deep);
-    position: relative;
-    cursor: pointer;
-    overflow: hidden;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: border-color 0.2s;
-  }
-
-  .photo-slot:hover { border-color: var(--parchment); }
-
-  .photo-slot img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    display: block;
-  }
-
-  .photo-placeholder {
-    text-align: center;
-    color: var(--umber);
-    pointer-events: none;
-  }
-
-  .photo-placeholder svg { opacity: 0.4; }
-
-  .photo-placeholder p {
-    font-family: 'Courier Prime', monospace;
-    font-size: 0.65rem;
-    letter-spacing: 0.1em;
-    margin-top: 8px;
-    opacity: 0.6;
-  }
-
-  .photo-remove {
-    position: absolute;
-    top: 6px;
-    right: 6px;
-    background: rgba(26,22,18,0.85);
-    border: 1px solid var(--umber);
-    color: var(--dim);
-    font-size: 0.65rem;
-    font-family: 'Courier Prime', monospace;
-    padding: 2px 6px;
-    cursor: pointer;
-    display: none;
-  }
-
-  .photo-slot:hover .photo-remove { display: block; }
-
-  .photo-input { display: none; }
-
-  /* Quote field top */
-  .char-quote-top {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-  }
-
-  .char-quote-top .field-label {
-    font-family: 'Playfair Display', serif;
-    font-size: 1.4rem;
-    font-style: italic;
-    color: var(--parchment);
-    margin-bottom: 4px;
-  }
-
-  /* Sections */
-  .section {
-    margin-bottom: 44px;
-  }
-
-  .section-title {
-    font-family: 'Playfair Display', serif;
-    font-size: 0.7rem;
-    font-weight: 700;
-    letter-spacing: 0.35em;
-    text-transform: uppercase;
-    color: var(--moss);
-    margin-bottom: 20px;
-    display: flex;
-    align-items: center;
-    gap: 14px;
-  }
-
-  .section-title::after {
-    content: '';
-    flex: 1;
-    height: 1px;
-    background: var(--chestnut);
-  }
-
-  .section-title .ornament {
-    color: var(--umber);
-    font-style: normal;
-    font-size: 0.9rem;
-  }
-
-  /* Fields */
-  .fields-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 14px 32px;
-  }
-
-  .fields-grid.single { grid-template-columns: 1fr; }
-  .fields-grid.triple { grid-template-columns: 1fr 1fr 1fr; }
-
-  .field {
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-  }
-
-  .field.span2 { grid-column: span 2; }
-
-  .field-label {
-    font-family: 'Courier Prime', monospace;
-    font-size: 0.65rem;
-    letter-spacing: 0.15em;
-    color: var(--umber);
-    text-transform: uppercase;
-  }
-
-  input[type="text"],
-  textarea,
-  select {
-    background: transparent;
-    border: none;
-    border-bottom: 1px solid var(--chestnut);
-    color: var(--text);
-    font-family: 'IM Fell English', serif;
-    font-size: 0.92rem;
-    padding: 4px 0;
-    width: 100%;
-    outline: none;
-    transition: border-color 0.2s;
-    resize: none;
-    -webkit-appearance: none;
-  }
-
-  input[type="text"]:focus,
-  textarea:focus,
-  select:focus {
-    border-bottom-color: var(--parchment);
-  }
-
-  input[type="text"]::placeholder,
-  textarea::placeholder {
-    color: var(--chestnut);
-    font-style: italic;
-  }
-
-  textarea {
-    min-height: 64px;
-    line-height: 1.6;
-  }
-
-  /* Checkboxes */
-  .checkboxes {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 10px 24px;
-    margin-top: 6px;
-  }
-
-  .cb-item {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    cursor: pointer;
-    font-family: 'IM Fell English', serif;
-    font-size: 0.88rem;
-    color: var(--dim);
-    transition: color 0.15s;
-    user-select: none;
-  }
-
-  .cb-item:hover { color: var(--text); }
-
-  .cb-item input[type="checkbox"] {
-    appearance: none;
-    width: 14px;
-    height: 14px;
-    border: 1px solid var(--umber);
-    background: transparent;
-    cursor: pointer;
-    position: relative;
-    flex-shrink: 0;
-    border-radius: 0;
-    transition: border-color 0.15s;
-  }
-
-  .cb-item input[type="checkbox"]:checked {
-    border-color: var(--parchment);
-    background: var(--chestnut);
-  }
-
-  .cb-item input[type="checkbox"]:checked::after {
-    content: '✕';
-    position: absolute;
-    top: -2px;
-    left: 1px;
-    font-size: 0.65rem;
-    color: var(--parchment);
-  }
-
-  /* Bullet fields */
-  .bullet-field {
-    display: flex;
-    align-items: baseline;
-    gap: 10px;
-    margin-bottom: 8px;
-  }
-
-  .bullet-field::before {
-    content: '•';
-    color: var(--umber);
-    flex-shrink: 0;
-  }
-
-  /* Ornamental divider */
-  .divider {
-    text-align: center;
-    margin: 32px 0;
-    color: var(--umber);
-    font-size: 0.8rem;
-    letter-spacing: 0.5em;
-    opacity: 0.5;
-  }
-
-  /* Quote field */
-  .quote-field {
-    position: relative;
-    padding: 0 24px;
-  }
-
-  .quote-field::before,
-  .quote-field::after {
-    position: absolute;
-    font-family: 'Playfair Display', serif;
-    font-size: 4rem;
-    color: var(--umber);
-    opacity: 0.3;
-    line-height: 1;
-  }
-
-  .quote-field::before { content: '"'; top: -10px; left: 0; }
-  .quote-field::after { content: '"'; bottom: -30px; right: 0; }
-
-  .quote-field textarea {
-    font-size: 1rem;
-    font-style: italic;
-    text-align: center;
-    border-bottom: 1px solid var(--chestnut);
-    min-height: 50px;
-  }
-
-  /* Save bar */
-  .save-bar {
-    position: fixed;
-    bottom: 0;
-    left: 220px;
-    right: 0;
-    padding: 12px 60px;
-    background: linear-gradient(to top, var(--ink) 60%, transparent);
-    display: flex;
-    align-items: center;
-    gap: 20px;
-    z-index: 50;
-  }
-
-  .btn-save {
-    background: none;
-    border: 1px solid var(--umber);
-    color: var(--parchment);
-    font-family: 'Courier Prime', monospace;
-    font-size: 0.72rem;
-    letter-spacing: 0.2em;
-    text-transform: uppercase;
-    padding: 10px 28px;
-    cursor: pointer;
-    transition: background 0.2s, border-color 0.2s;
-  }
-
-  .btn-save:hover {
-    background: var(--chestnut);
-    border-color: var(--parchment);
-  }
-
-  .btn-clear {
-    background: none;
-    border: none;
-    color: var(--umber);
-    font-family: 'Courier Prime', monospace;
-    font-size: 0.65rem;
-    letter-spacing: 0.15em;
-    text-transform: uppercase;
-    cursor: pointer;
-    transition: color 0.2s;
-    padding: 10px 0;
-  }
-
-  .btn-clear:hover { color: var(--text); }
-
-  .save-status {
-    font-family: 'Courier Prime', monospace;
-    font-size: 0.65rem;
-    color: var(--moss);
-    letter-spacing: 0.1em;
-    opacity: 0;
-    transition: opacity 0.4s;
-  }
-
-  .save-status.show { opacity: 1; }
-
-  /* Autosave indicator */
-  .autosave-dot {
-    width: 6px;
-    height: 6px;
-    border-radius: 50%;
-    background: var(--moss);
-    opacity: 0;
-    transition: opacity 0.3s;
-  }
-
-  .autosave-dot.pulse {
-    opacity: 1;
-    animation: pulse 1s ease-out forwards;
-  }
-
-  @keyframes pulse {
-    0% { opacity: 1; transform: scale(1); }
-    100% { opacity: 0; transform: scale(1.5); }
-  }
-
-  /* Page fade */
-  .main {
-    animation: fadeIn 0.3s ease;
-  }
-
-  @keyframes fadeIn {
-    from { opacity: 0; transform: translateY(6px); }
-    to { opacity: 1; transform: translateY(0); }
-  }
-
-  /* Responsive */
-  @media (max-width: 768px) {
-    .sidebar { width: 180px; }
-    .main { margin-left: 180px; padding: 32px 28px 80px; }
-    .fields-grid { grid-template-columns: 1fr; }
-    .fields-grid .span2 { grid-column: span 1; }
-    .save-bar { left: 180px; padding: 12px 28px; }
-    .photo-section { flex-direction: column; }
-  }
-
-  select option { background: var(--deep); }
-
-  .small-input { max-width: 200px; }
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg:        #f0ebe3;
+  --bg2:       #e8e0d4;
+  --sidebar:   #e2d9cc;
+  --line:      #c8bfb0;
+  --umber:     #8a7260;
+  --text:      #3a2e24;
+  --dim:       #9a8878;
+  --accent:    #5c4434;
+  --parchment: #7a5c44;
+}
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Cormorant Garamond', Georgia, serif;
+  font-weight: 300;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+.app { display: flex; min-height: 100vh; }
+
+/* ── Sidebar ── */
+.sidebar {
+  width: 200px;
+  min-height: 100vh;
+  background: var(--sidebar);
+  border-right: 1px solid var(--line);
+  display: flex;
+  flex-direction: column;
+  position: fixed;
+  top: 0; left: 0; bottom: 0;
+  overflow-y: auto;
+  z-index: 100;
+}
+
+.sidebar-title {
+  padding: 32px 20px 20px;
+  border-bottom: 1px solid var(--line);
+}
+
+.sidebar-eyebrow {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 0.6rem;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: var(--dim);
+  margin-bottom: 6px;
+}
+
+.sidebar-name {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.15rem;
+  font-style: italic;
+  font-weight: 400;
+  color: var(--accent);
+  line-height: 1.2;
+}
+
+.char-list { list-style: none; padding: 8px 0; flex: 1; }
+
+.char-list li { border-bottom: 1px solid rgba(0,0,0,0.05); }
+
+.char-btn {
+  width: 100%;
+  background: none;
+  border: none;
+  padding: 9px 20px;
+  text-align: left;
+  cursor: pointer;
+  color: var(--dim);
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 0.88rem;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: background 0.15s, color 0.15s;
+  font-weight: 300;
+}
+
+.char-btn:hover { background: rgba(0,0,0,0.04); color: var(--text); }
+.char-btn.active { color: var(--accent); background: rgba(0,0,0,0.06); }
+
+.char-btn .num {
+  font-size: 0.62rem;
+  color: var(--line);
+  min-width: 18px;
+  letter-spacing: 0.05em;
+}
+
+.char-btn .cname {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-style: italic;
+}
+
+.char-btn .dot {
+  width: 4px; height: 4px;
+  border-radius: 50%;
+  background: var(--umber);
+  flex-shrink: 0;
+  opacity: 0;
+  margin-left: auto;
+}
+
+.char-btn.has-data .dot { opacity: 1; }
+
+/* ── Main ── */
+.main {
+  margin-left: 200px;
+  flex: 1;
+  padding: 56px 72px 100px;
+  max-width: 860px;
+  animation: fadeIn 0.25s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(4px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ── Page header ── */
+.page-header {
+  margin-bottom: 52px;
+}
+
+.page-eyebrow {
+  font-size: 0.6rem;
+  letter-spacing: 0.35em;
+  text-transform: uppercase;
+  color: var(--dim);
+  margin-bottom: 10px;
+}
+
+.page-title {
+  font-family: 'Playfair Display', serif;
+  font-size: 2.2rem;
+  font-style: italic;
+  font-weight: 400;
+  color: var(--accent);
+  line-height: 1.1;
+}
+
+.page-title .star {
+  font-style: normal;
+  font-size: 1rem;
+  opacity: 0.4;
+  margin-right: 8px;
+}
+
+/* ── Photo section ── */
+.photo-section {
+  display: flex;
+  align-items: flex-start;
+  gap: 44px;
+  margin-bottom: 56px;
+  padding-bottom: 48px;
+  border-bottom: 1px solid var(--line);
+}
+
+.photo-frame { flex-shrink: 0; width: 160px; }
+
+.photo-label {
+  font-size: 0.58rem;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  color: var(--dim);
+  margin-bottom: 8px;
+}
+
+.photo-slot {
+  width: 160px;
+  height: 200px;
+  border: 1px solid var(--line);
+  background: var(--bg2);
+  position: relative;
+  cursor: pointer;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: border-color 0.2s;
+}
+
+.photo-slot:hover { border-color: var(--umber); }
+
+.photo-slot img { width: 100%; height: 100%; object-fit: cover; }
+
+.photo-placeholder { text-align: center; color: var(--line); pointer-events: none; }
+
+.photo-placeholder svg { opacity: 0.5; }
+
+.photo-placeholder p {
+  font-size: 0.6rem;
+  letter-spacing: 0.12em;
+  margin-top: 8px;
+  color: var(--dim);
+  text-transform: uppercase;
+}
+
+.photo-remove {
+  position: absolute;
+  top: 6px; right: 6px;
+  background: rgba(240,235,227,0.9);
+  border: 1px solid var(--line);
+  color: var(--dim);
+  font-size: 0.6rem;
+  padding: 2px 7px;
+  cursor: pointer;
+  display: none;
+  font-family: 'Cormorant Garamond', serif;
+  letter-spacing: 0.05em;
+}
+
+.photo-slot:hover .photo-remove { display: block; }
+.photo-input { display: none; }
+
+/* ── Name fields ── */
+.name-fields { flex: 1; }
+
+.name-fields .field-label {
+  font-size: 0.58rem;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  color: var(--dim);
+  margin-bottom: 16px;
+}
+
+/* ── Sections ── */
+.section { margin-bottom: 48px; }
+
+.section-title {
+  font-size: 0.58rem;
+  font-weight: 400;
+  letter-spacing: 0.35em;
+  text-transform: uppercase;
+  color: var(--dim);
+  margin-bottom: 24px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.section-title::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--line);
+}
+
+/* ── Fields ── */
+.fields-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px 40px;
+}
+
+.fields-grid.single { grid-template-columns: 1fr; }
+
+.field { display: flex; flex-direction: column; gap: 5px; }
+.field.span2 { grid-column: span 2; }
+
+.field-label {
+  font-size: 0.58rem;
+  letter-spacing: 0.2em;
+  color: var(--dim);
+  text-transform: uppercase;
+}
+
+input[type="text"],
+textarea {
+  background: transparent;
+  border: none;
+  border-bottom: 1px solid var(--line);
+  color: var(--text);
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1rem;
+  font-weight: 300;
+  padding: 4px 0;
+  width: 100%;
+  outline: none;
+  transition: border-color 0.2s;
+  resize: none;
+}
+
+input[type="text"]:focus,
+textarea:focus { border-bottom-color: var(--umber); }
+
+input[type="text"]::placeholder,
+textarea::placeholder { color: var(--line); font-style: italic; }
+
+textarea { min-height: 60px; line-height: 1.65; }
+
+/* ── Checkboxes ── */
+.checkboxes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 24px;
+}
+
+.cb-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 0.95rem;
+  font-weight: 300;
+  color: var(--dim);
+  user-select: none;
+  transition: color 0.15s;
+}
+
+.cb-item:hover { color: var(--text); }
+
+.cb-item input[type="checkbox"] {
+  appearance: none;
+  width: 12px; height: 12px;
+  border: 1px solid var(--line);
+  background: transparent;
+  cursor: pointer;
+  position: relative;
+  flex-shrink: 0;
+  transition: border-color 0.15s;
+}
+
+.cb-item input[type="checkbox"]:checked {
+  border-color: var(--umber);
+}
+
+.cb-item input[type="checkbox"]:checked::after {
+  content: '×';
+  position: absolute;
+  top: -3px; left: 1px;
+  font-size: 0.7rem;
+  color: var(--umber);
+}
+
+/* ── Bullet ── */
+.bullet-field {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.bullet-field::before {
+  content: '—';
+  color: var(--line);
+  flex-shrink: 0;
+  font-size: 0.8rem;
+}
+
+/* ── Divider ── */
+.divider {
+  text-align: center;
+  margin: 36px 0;
+  color: var(--line);
+  font-size: 0.7rem;
+  letter-spacing: 0.5em;
+}
+
+/* ── Quote ── */
+.quote-wrap {
+  padding: 20px 0;
+  position: relative;
+}
+
+.quote-wrap::before {
+  content: '"';
+  font-family: 'Playfair Display', serif;
+  font-size: 5rem;
+  color: var(--line);
+  position: absolute;
+  top: -10px; left: -16px;
+  line-height: 1;
+  pointer-events: none;
+}
+
+.quote-wrap textarea {
+  font-size: 1.1rem;
+  font-style: italic;
+  text-align: center;
+  padding-left: 20px;
+  color: var(--accent);
+}
+
+/* ── Save bar ── */
+.save-bar {
+  position: fixed;
+  bottom: 0;
+  left: 200px; right: 0;
+  padding: 14px 72px;
+  background: linear-gradient(to top, var(--bg) 70%, transparent);
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  z-index: 50;
+  flex-wrap: wrap;
+}
+
+.btn-save {
+  background: none;
+  border: 1px solid var(--umber);
+  color: var(--accent);
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 0.7rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  padding: 9px 28px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.btn-save:hover { background: rgba(0,0,0,0.06); }
+
+.btn-secondary {
+  background: none;
+  border: none;
+  color: var(--dim);
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 0.65rem;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  cursor: pointer;
+  padding: 9px 0;
+  transition: color 0.15s;
+}
+
+.btn-secondary:hover { color: var(--text); }
+
+.btn-chat {
+  background: none;
+  border: 1px solid var(--line);
+  color: var(--umber);
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 0.7rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  padding: 9px 20px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: border-color 0.2s, color 0.2s;
+  margin-left: auto;
+}
+
+.btn-chat:hover { border-color: var(--umber); color: var(--accent); }
+
+.btn-export {
+  background: none;
+  border: none;
+  color: var(--dim);
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 0.65rem;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  cursor: pointer;
+  padding: 9px 0;
+  transition: color 0.15s;
+}
+
+.btn-export:hover { color: var(--text); }
+
+.save-status {
+  font-size: 0.62rem;
+  letter-spacing: 0.15em;
+  color: var(--umber);
+  text-transform: uppercase;
+  opacity: 0;
+  transition: opacity 0.4s;
+}
+
+.save-status.show { opacity: 1; }
+
+.autosave-dot {
+  width: 5px; height: 5px;
+  border-radius: 50%;
+  background: var(--umber);
+  opacity: 0;
+}
+
+@keyframes pulse {
+  0%   { opacity: 1; transform: scale(1); }
+  100% { opacity: 0; transform: scale(1.8); }
+}
+
+.autosave-dot.pulse { animation: pulse 1s ease-out forwards; }
+
+/* ── Chat panel ── */
+.chat-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  background: rgba(58,46,36,0.25);
+  backdrop-filter: blur(2px);
+}
+
+.chat-overlay.open { display: flex; align-items: flex-end; justify-content: flex-end; }
+
+.chat-panel {
+  width: 420px;
+  height: 100vh;
+  background: var(--bg);
+  border-left: 1px solid var(--line);
+  display: flex;
+  flex-direction: column;
+  animation: slideIn 0.25s ease;
+}
+
+@keyframes slideIn {
+  from { transform: translateX(40px); opacity: 0; }
+  to   { transform: translateX(0);    opacity: 1; }
+}
+
+.chat-header {
+  padding: 24px 28px 20px;
+  border-bottom: 1px solid var(--line);
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  flex-shrink: 0;
+}
+
+.chat-header-text {}
+
+.chat-title {
+  font-family: 'Playfair Display', serif;
+  font-size: 1rem;
+  font-style: italic;
+  color: var(--accent);
+  margin-bottom: 4px;
+}
+
+.chat-subtitle {
+  font-size: 0.62rem;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--dim);
+}
+
+.chat-close {
+  background: none;
+  border: none;
+  color: var(--dim);
+  font-size: 1.1rem;
+  cursor: pointer;
+  padding: 0;
+  line-height: 1;
+  transition: color 0.15s;
+}
+
+.chat-close:hover { color: var(--text); }
+
+.chat-context {
+  padding: 12px 28px;
+  border-bottom: 1px solid var(--line);
+  font-size: 0.65rem;
+  color: var(--dim);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  flex-shrink: 0;
+}
+
+.chat-context span { color: var(--accent); font-style: italic; font-size: 0.75rem; letter-spacing: 0; text-transform: none; }
+
+.chat-messages {
+  flex: 1;
+  overflow-y: auto;
+  padding: 20px 28px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.chat-msg {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  max-width: 90%;
+}
+
+.chat-msg.user { align-self: flex-end; align-items: flex-end; }
+.chat-msg.ai   { align-self: flex-start; }
+
+.chat-msg-label {
+  font-size: 0.55rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--dim);
+}
+
+.chat-msg-bubble {
+  font-size: 0.92rem;
+  line-height: 1.65;
+  color: var(--text);
+  padding: 10px 14px;
+  border: 1px solid var(--line);
+  background: var(--bg2);
+}
+
+.chat-msg.user .chat-msg-bubble {
+  background: var(--sidebar);
+  border-color: var(--line);
+}
+
+.chat-msg.ai .chat-msg-bubble {
+  background: var(--bg);
+}
+
+.chat-empty {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 40px;
+}
+
+.chat-empty p {
+  font-size: 0.8rem;
+  color: var(--dim);
+  font-style: italic;
+  line-height: 1.7;
+}
+
+.chat-suggestions {
+  padding: 0 28px 12px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.chat-suggestion {
+  background: none;
+  border: 1px solid var(--line);
+  color: var(--dim);
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 0.78rem;
+  padding: 5px 12px;
+  cursor: pointer;
+  transition: border-color 0.15s, color 0.15s;
+  font-style: italic;
+}
+
+.chat-suggestion:hover { border-color: var(--umber); color: var(--text); }
+
+.chat-input-row {
+  padding: 16px 28px 20px;
+  border-top: 1px solid var(--line);
+  display: flex;
+  gap: 10px;
+  align-items: flex-end;
+  flex-shrink: 0;
+}
+
+.chat-input {
+  flex: 1;
+  background: transparent;
+  border: none;
+  border-bottom: 1px solid var(--line);
+  color: var(--text);
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 0.95rem;
+  padding: 6px 0;
+  outline: none;
+  resize: none;
+  min-height: 32px;
+  max-height: 100px;
+  line-height: 1.5;
+  transition: border-color 0.2s;
+}
+
+.chat-input:focus { border-bottom-color: var(--umber); }
+.chat-input::placeholder { color: var(--line); font-style: italic; }
+
+.btn-send {
+  background: none;
+  border: 1px solid var(--umber);
+  color: var(--accent);
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 0.65rem;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  padding: 7px 16px;
+  cursor: pointer;
+  transition: background 0.15s;
+  flex-shrink: 0;
+  align-self: flex-end;
+}
+
+.btn-send:hover { background: rgba(0,0,0,0.04); }
+.btn-send:disabled { opacity: 0.4; cursor: not-allowed; }
+
+/* ── Export modal ── */
+.export-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  z-index: 300;
+  background: rgba(58,46,36,0.3);
+  backdrop-filter: blur(2px);
+  align-items: center;
+  justify-content: center;
+}
+
+.export-overlay.open { display: flex; }
+
+.export-modal {
+  background: var(--bg);
+  border: 1px solid var(--line);
+  width: 560px;
+  max-height: 80vh;
+  display: flex;
+  flex-direction: column;
+  animation: fadeIn 0.2s ease;
+}
+
+.export-modal-header {
+  padding: 24px 28px 16px;
+  border-bottom: 1px solid var(--line);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.export-modal-title {
+  font-family: 'Playfair Display', serif;
+  font-size: 1rem;
+  font-style: italic;
+  color: var(--accent);
+}
+
+.export-modal-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 20px 28px;
+}
+
+.export-text {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 0.88rem;
+  line-height: 1.75;
+  color: var(--text);
+  white-space: pre-wrap;
+  background: var(--bg2);
+  border: 1px solid var(--line);
+  padding: 16px;
+  user-select: all;
+}
+
+.export-modal-footer {
+  padding: 16px 28px;
+  border-top: 1px solid var(--line);
+  display: flex;
+  gap: 12px;
+  flex-shrink: 0;
+}
+
+@media (max-width: 768px) {
+  .sidebar { width: 160px; }
+  .main { margin-left: 160px; padding: 32px 24px 100px; }
+  .fields-grid { grid-template-columns: 1fr; }
+  .field.span2 { grid-column: span 1; }
+  .save-bar { left: 160px; padding: 14px 24px; }
+  .photo-section { flex-direction: column; }
+  .chat-panel { width: 100vw; }
+  .export-modal { width: 95vw; }
+}
 </style>
 </head>
 <body>
 
 <div class="app">
-  <!-- Sidebar -->
   <aside class="sidebar">
     <div class="sidebar-title">
-      ✦ Архив
-      <span>Персонажи</span>
+      <div class="sidebar-eyebrow">Архив</div>
+      <div class="sidebar-name">Персонажи</div>
     </div>
     <ul class="char-list" id="charList"></ul>
   </aside>
 
-  <!-- Main -->
-  <main class="main" id="mainContent">
-    <!-- rendered dynamically -->
-  </main>
+  <main class="main" id="mainContent"></main>
 </div>
 
-<!-- Save bar -->
 <div class="save-bar">
   <button class="btn-save" onclick="saveCurrentChar()">Сохранить</button>
-  <button class="btn-clear" onclick="clearCurrentChar()">Очистить</button>
+  <button class="btn-secondary" onclick="clearCurrentChar()">Очистить</button>
   <div class="autosave-dot" id="autosaveDot"></div>
   <div class="save-status" id="saveStatus">Сохранено</div>
+  <button class="btn-export" onclick="openExport()">Экспорт текста</button>
+  <button class="btn-chat" onclick="openChat()">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+    Обсудить с Claude
+  </button>
+</div>
+
+<!-- Export Modal -->
+<div class="export-overlay" id="exportOverlay" onclick="closeExportIfBg(event)">
+  <div class="export-modal">
+    <div class="export-modal-header">
+      <div class="export-modal-title">Экспорт досье</div>
+      <button class="chat-close" onclick="closeExport()">✕</button>
+    </div>
+    <div class="export-modal-body">
+      <div class="export-text" id="exportText"></div>
+    </div>
+    <div class="export-modal-footer">
+      <button class="btn-save" onclick="copyExport()">Скопировать</button>
+      <div class="save-status" id="copyStatus" style="position:static;">Скопировано</div>
+    </div>
+  </div>
+</div>
+
+<!-- Chat Panel -->
+<div class="chat-overlay" id="chatOverlay" onclick="closeChatIfBg(event)">
+  <div class="chat-panel">
+    <div class="chat-header">
+      <div class="chat-header-text">
+        <div class="chat-title">Разговор с Claude</div>
+        <div class="chat-subtitle">о персонаже</div>
+      </div>
+      <button class="chat-close" onclick="closeChat()">✕</button>
+    </div>
+    <div class="chat-context" id="chatContext">Персонаж: <span id="chatCharName">—</span></div>
+    <div class="chat-messages" id="chatMessages">
+      <div class="chat-empty" id="chatEmpty">
+        <p>Claude прочитает всё досье<br>и ответит на твои вопросы<br>о персонаже</p>
+      </div>
+    </div>
+    <div class="chat-suggestions" id="chatSuggestions">
+      <button class="chat-suggestion" onclick="sendSuggestion(this)">Найди противоречия в характере</button>
+      <button class="chat-suggestion" onclick="sendSuggestion(this)">Как бы он повёл себя в кризис?</button>
+      <button class="chat-suggestion" onclick="sendSuggestion(this)">Придумай сцену для этого персонажа</button>
+      <button class="chat-suggestion" onclick="sendSuggestion(this)">Что движет им в глубине?</button>
+    </div>
+    <div class="chat-input-row">
+      <textarea class="chat-input" id="chatInput" placeholder="Спроси о персонаже..." rows="1"
+        onkeydown="handleChatKey(event)" oninput="autoResizeInput(this)"></textarea>
+      <button class="btn-send" id="sendBtn" onclick="sendChat()">→</button>
+    </div>
+  </div>
 </div>
 
 <script>
@@ -613,7 +864,6 @@ let currentChar = 0;
 let data = {};
 let autoSaveTimer = null;
 
-// Load all data
 function loadAll() {
   for (let i = 0; i < TOTAL; i++) {
     const raw = localStorage.getItem(`evermore_char_${i}`);
@@ -664,20 +914,18 @@ function clearCurrentChar() {
 }
 
 function hasData(idx) {
-  const d = data[idx] || {};
-  return Object.values(d).some(v => v && v !== '');
+  return Object.values(data[idx] || {}).some(v => v && v !== '');
 }
 
 function getCharName(idx) {
   const d = data[idx] || {};
-  const name = [d['first_name'], d['last_name']].filter(Boolean).join(' ');
-  return name || `Персонаж ${idx + 1}`;
+  return [d.first_name, d.last_name].filter(Boolean).join(' ') || `Персонаж ${idx + 1}`;
 }
 
 function updateSidebarItem(idx) {
   const btn = document.querySelector(`#charList li:nth-child(${idx+1}) .char-btn`);
   if (!btn) return;
-  btn.querySelector('.name').textContent = getCharName(idx);
+  btn.querySelector('.cname').textContent = getCharName(idx);
   btn.classList.toggle('has-data', hasData(idx));
 }
 
@@ -688,7 +936,7 @@ function buildSidebar() {
     const li = document.createElement('li');
     const btn = document.createElement('button');
     btn.className = 'char-btn' + (i === currentChar ? ' active' : '') + (hasData(i) ? ' has-data' : '');
-    btn.innerHTML = `<span class="num">${String(i+1).padStart(2,'0')}</span><span class="dot"></span><span class="name">${getCharName(i)}</span>`;
+    btn.innerHTML = `<span class="num">${String(i+1).padStart(2,'0')}</span><span class="cname">${getCharName(i)}</span><span class="dot"></span>`;
     btn.onclick = () => switchChar(i);
     li.appendChild(btn);
     list.appendChild(li);
@@ -703,144 +951,126 @@ function switchChar(idx) {
   window.scrollTo(0, 0);
 }
 
-// ---------- Field helpers ----------
-function tf(field, placeholder = '', multiline = false, extraClass = '') {
-  const val = getField(field);
-  if (multiline) {
-    return `<textarea data-field="${field}" placeholder="${placeholder}" class="${extraClass}" rows="3">${val}</textarea>`;
-  }
-  return `<input type="text" data-field="${field}" placeholder="${placeholder}" value="${escHtml(val)}" class="${extraClass}">`;
-}
-
-function escHtml(s) {
+function esc(s) {
   return String(s).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
 }
 
-function cb(field, label) {
-  const checked = getField(field) === '1' ? 'checked' : '';
-  return `<label class="cb-item"><input type="checkbox" data-field="${field}" ${checked}> ${label}</label>`;
+function inp(field, placeholder = '') {
+  return `<input type="text" data-field="${field}" placeholder="${placeholder}" value="${esc(getField(field))}">`;
 }
 
-function fieldBlock(label, field, multiline = false, span2 = false, placeholder = '') {
+function ta(field, placeholder = '') {
+  return `<textarea data-field="${field}" placeholder="${placeholder}" rows="3">${esc(getField(field))}</textarea>`;
+}
+
+function cb(field, label) {
+  const ch = getField(field) === '1' ? 'checked' : '';
+  return `<label class="cb-item"><input type="checkbox" data-field="${field}" ${ch}> ${label}</label>`;
+}
+
+function f(label, field, multi = false, span2 = false, ph = '') {
   return `<div class="field${span2?' span2':''}">
     <div class="field-label">${label}</div>
-    ${tf(field, placeholder, multiline)}
+    ${multi ? ta(field, ph) : inp(field, ph)}
   </div>`;
 }
 
-// ---------- Render ----------
 function renderPage(idx) {
-  const d = data[idx] || {};
-  const photoSrc = d['photo'] || '';
+  const photoSrc = (data[idx] || {}).photo || '';
 
-  const html = `
+  document.getElementById('mainContent').innerHTML = `
   <div class="page-header">
-    <div class="page-eyebrow">Страница ${String(idx+1).padStart(2,'0')} / ${TOTAL}</div>
-    <h1 class="page-title"><span class="star">✦</span> Досье персонажа</h1>
+    <div class="page-eyebrow">${String(idx+1).padStart(2,'0')} / ${TOTAL}</div>
+    <h1 class="page-title"><span class="star">✦</span>Досье персонажа</h1>
   </div>
 
-  <!-- Photo + name -->
   <div class="photo-section">
     <div class="photo-frame">
       <div class="photo-label">Фото</div>
       <div class="photo-slot" onclick="triggerPhoto()">
         ${photoSrc
-          ? `<img src="${photoSrc}" id="photoImg"><button class="photo-remove" onclick="removePhoto(event)">✕ убрать</button>`
+          ? `<img src="${photoSrc}"><button class="photo-remove" onclick="removePhoto(event)">убрать</button>`
           : `<div class="photo-placeholder">
-              <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1"><rect x="3" y="3" width="18" height="18" rx="1"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>
-              <p>загрузить фото</p>
-            </div>`
-        }
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1"><rect x="3" y="3" width="18" height="18" rx="1"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>
+              <p>загрузить</p>
+            </div>`}
       </div>
       <input type="file" accept="image/*" class="photo-input" id="photoInput" onchange="handlePhoto(event)">
     </div>
-    <div class="char-quote-top">
-      <div class="field-label" style="font-size:0.65rem;letter-spacing:0.15em;color:var(--umber);text-transform:uppercase;font-family:'Courier Prime',monospace;margin-bottom:16px;">Имя и фамилия</div>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:20px;">
-        ${fieldBlock('Имя', 'first_name', false, false, 'Имя...')}
-        ${fieldBlock('Фамилия', 'last_name', false, false, 'Фамилия...')}
+
+    <div class="name-fields">
+      <div class="field-label">Имя и фамилия</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px 32px;margin-bottom:20px;">
+        ${f('Имя','first_name',false,false,'—')}
+        ${f('Фамилия','last_name',false,false,'—')}
       </div>
-      ${fieldBlock('Прозвище', 'nickname', false, false, 'Прозвище...')}
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:14px;">
-        ${fieldBlock('Возраст', 'age', false, false, '—')}
-        ${fieldBlock('Дата рождения', 'birthday', false, false, 'дд.мм.гггг')}
+      ${f('Прозвище','nickname',false,false,'—')}
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px 32px;margin-top:18px;">
+        ${f('Возраст','age',false,false,'—')}
+        ${f('Дата рождения','birthday',false,false,'дд.мм.гггг')}
       </div>
-      <div style="margin-top:14px;">
-        ${fieldBlock('Профессия', 'profession', false, false, '—')}
-      </div>
+      <div style="margin-top:18px;">${f('Профессия','profession',false,false,'—')}</div>
     </div>
   </div>
 
-  <div class="divider">⸻ ✦ ⸻</div>
-
-  <!-- Личное -->
   <div class="section">
-    <div class="section-title"><span class="ornament">I.</span> Личное</div>
+    <div class="section-title">I — Личное</div>
     <div class="fields-grid">
-      ${fieldBlock('Рост', 'height', false, false, '—')}
-      ${fieldBlock('Вес', 'weight', false, false, '—')}
-      ${fieldBlock('Национальность', 'nationality', false, false, '—')}
-      ${fieldBlock('Образование', 'education', false, false, '—')}
-      ${fieldBlock('Место жительства', 'location', false, true, '—')}
+      ${f('Рост','height',false,false,'—')}
+      ${f('Вес','weight',false,false,'—')}
+      ${f('Национальность','nationality',false,false,'—')}
+      ${f('Образование','education',false,false,'—')}
+      ${f('Место жительства','location',false,true,'—')}
     </div>
   </div>
 
-  <div class="divider">⸻ ✦ ⸻</div>
-
-  <!-- Внешность -->
   <div class="section">
-    <div class="section-title"><span class="ornament">II.</span> Внешность</div>
+    <div class="section-title">II — Внешность</div>
     <div class="fields-grid">
-      ${fieldBlock('Цвет волос', 'hair', false, false, '—')}
-      ${fieldBlock('Цвет глаз', 'eyes', false, false, '—')}
-      ${fieldBlock('Цвет кожи', 'skin', false, false, '—')}
-      ${fieldBlock('Телосложение', 'body', false, false, '—')}
+      ${f('Цвет волос','hair',false,false,'—')}
+      ${f('Цвет глаз','eyes',false,false,'—')}
+      ${f('Цвет кожи','skin',false,false,'—')}
+      ${f('Телосложение','body',false,false,'—')}
     </div>
-    <div style="margin-top:18px;">
-      <div class="field-label" style="font-size:0.65rem;letter-spacing:0.15em;color:var(--umber);text-transform:uppercase;font-family:'Courier Prime',monospace;margin-bottom:10px;">Особые приметы</div>
+    <div style="margin-top:20px;">
+      <div class="field-label" style="margin-bottom:12px;">Особые приметы</div>
       <div class="checkboxes">
         ${cb('mark_scar','Шрам')}
         ${cb('mark_tattoo','Татуировки')}
         ${cb('mark_mole','Родинки')}
         ${cb('mark_piercing','Пирсинг')}
       </div>
-      <div style="margin-top:12px;">${fieldBlock('Другое', 'mark_other', false, false, '...')}</div>
+      <div style="margin-top:14px;">${f('Другое','mark_other',false,false,'—')}</div>
     </div>
-    <div class="fields-grid" style="margin-top:18px;">
-      ${fieldBlock('Стиль одежды', 'style', false, false, '—')}
-      ${fieldBlock('Любимый парфюм', 'perfume', false, false, '—')}
-      ${fieldBlock('Манера речи', 'speech', false, false, '—')}
-      ${fieldBlock('Первое впечатление', 'impression', false, false, '—')}
+    <div class="fields-grid" style="margin-top:20px;">
+      ${f('Стиль одежды','style',false,false,'—')}
+      ${f('Любимый парфюм','perfume',false,false,'—')}
+      ${f('Манера речи','speech',false,false,'—')}
+      ${f('Первое впечатление','impression',false,false,'—')}
     </div>
   </div>
 
-  <div class="divider">⸻ ✦ ⸻</div>
-
-  <!-- Характер -->
   <div class="section">
-    <div class="section-title"><span class="ornament">III.</span> Характер</div>
-    <div class="field" style="margin-bottom:18px;">
+    <div class="section-title">III — Характер</div>
+    <div class="field" style="margin-bottom:20px;">
       <div class="field-label">Три главные черты</div>
-      <div class="bullet-field">${tf('trait_1','—')}</div>
-      <div class="bullet-field">${tf('trait_2','—')}</div>
-      <div class="bullet-field">${tf('trait_3','—')}</div>
+      <div class="bullet-field">${inp('trait_1','—')}</div>
+      <div class="bullet-field">${inp('trait_2','—')}</div>
+      <div class="bullet-field">${inp('trait_3','—')}</div>
     </div>
     <div class="fields-grid single">
-      ${fieldBlock('Сильные стороны', 'strengths', true, false, '...')}
-      ${fieldBlock('Слабости', 'weaknesses', true, false, '...')}
-      ${fieldBlock('Главный страх', 'fear', true, false, '...')}
-      ${fieldBlock('Главная мечта', 'dream', true, false, '...')}
-      ${fieldBlock('Главная цель', 'goal', true, false, '...')}
-      ${fieldBlock('Что скрывает', 'secret', true, false, '...')}
-      ${fieldBlock('Самая большая ложь самому себе', 'self_lie', true, false, '...')}
+      ${f('Сильные стороны','strengths',true,false,'—')}
+      ${f('Слабости','weaknesses',true,false,'—')}
+      ${f('Главный страх','fear',true,false,'—')}
+      ${f('Главная мечта','dream',true,false,'—')}
+      ${f('Главная цель','goal',true,false,'—')}
+      ${f('Что скрывает','secret',true,false,'—')}
+      ${f('Самая большая ложь самому себе','self_lie',true,false,'—')}
     </div>
   </div>
 
-  <div class="divider">⸻ ✦ ⸻</div>
-
-  <!-- Привычки -->
   <div class="section">
-    <div class="section-title"><span class="ornament">IV.</span> Привычки</div>
+    <div class="section-title">IV — Привычки</div>
     <div class="checkboxes">
       ${cb('h_coffee','Кофе')}
       ${cb('h_tea','Чай')}
@@ -855,150 +1085,119 @@ function renderPage(idx) {
       ${cb('h_mess','Неряха')}
       ${cb('h_impuls','Импульсивный')}
     </div>
-    <div style="margin-top:14px;">${fieldBlock('Другое', 'habit_other', false, false, '...')}</div>
+    <div style="margin-top:16px;">${f('Другое','habit_other',false,false,'—')}</div>
   </div>
 
-  <div class="divider">⸻ ✦ ⸻</div>
-
-  <!-- Любимое -->
   <div class="section">
-    <div class="section-title"><span class="ornament">V.</span> Любимое</div>
+    <div class="section-title">V — Любимое</div>
     <div class="fields-grid">
-      ${fieldBlock('Цвет', 'fav_color', false, false, '—')}
-      ${fieldBlock('Еда', 'fav_food', false, false, '—')}
-      ${fieldBlock('Напиток', 'fav_drink', false, false, '—')}
-      ${fieldBlock('Музыка', 'fav_music', false, false, '—')}
-      ${fieldBlock('Фильм', 'fav_film', false, false, '—')}
-      ${fieldBlock('Сериал', 'fav_series', false, false, '—')}
-      ${fieldBlock('Книга', 'fav_book', false, false, '—')}
-      ${fieldBlock('Время года', 'fav_season', false, false, '—')}
-      ${fieldBlock('Место', 'fav_place', false, true, '—')}
+      ${f('Цвет','fav_color',false,false,'—')}
+      ${f('Еда','fav_food',false,false,'—')}
+      ${f('Напиток','fav_drink',false,false,'—')}
+      ${f('Музыка','fav_music',false,false,'—')}
+      ${f('Фильм','fav_film',false,false,'—')}
+      ${f('Сериал','fav_series',false,false,'—')}
+      ${f('Книга','fav_book',false,false,'—')}
+      ${f('Время года','fav_season',false,false,'—')}
+      ${f('Место','fav_place',false,true,'—')}
     </div>
   </div>
 
-  <div class="divider">⸻ ✦ ⸻</div>
-
-  <!-- Прошлое -->
   <div class="section">
-    <div class="section-title"><span class="ornament">VI.</span> Прошлое</div>
+    <div class="section-title">VI — Прошлое</div>
     <div class="fields-grid single">
-      ${fieldBlock('Семья', 'family', true, false, '...')}
-      ${fieldBlock('Детство', 'childhood', true, false, '...')}
-      ${fieldBlock('Самое счастливое воспоминание', 'memory_happy', true, false, '...')}
-      ${fieldBlock('Самое болезненное воспоминание', 'memory_painful', true, false, '...')}
-      ${fieldBlock('Главная травма', 'trauma', true, false, '...')}
+      ${f('Семья','family',true,false,'—')}
+      ${f('Детство','childhood',true,false,'—')}
+      ${f('Самое счастливое воспоминание','memory_happy',true,false,'—')}
+      ${f('Самое болезненное воспоминание','memory_painful',true,false,'—')}
+      ${f('Главная травма','trauma',true,false,'—')}
     </div>
   </div>
 
-  <div class="divider">⸻ ✦ ⸻</div>
-
-  <!-- Отношения -->
   <div class="section">
-    <div class="section-title"><span class="ornament">VII.</span> Отношения</div>
+    <div class="section-title">VII — Отношения</div>
     <div class="fields-grid">
-      ${fieldBlock('Любовный интерес', 'love', false, false, '—')}
-      ${fieldBlock('Лучший друг', 'bestfriend', false, false, '—')}
-      ${fieldBlock('Враг', 'enemy', false, false, '—')}
-      ${fieldBlock('Наставник', 'mentor', false, false, '—')}
-      ${fieldBlock('Кому доверяет', 'trusts', false, false, '—')}
-      ${fieldBlock('Кого боится потерять', 'afraid_to_lose', false, false, '—')}
+      ${f('Любовный интерес','love',false,false,'—')}
+      ${f('Лучший друг','bestfriend',false,false,'—')}
+      ${f('Враг','enemy',false,false,'—')}
+      ${f('Наставник','mentor',false,false,'—')}
+      ${f('Кому доверяет','trusts',false,false,'—')}
+      ${f('Кого боится потерять','afraid_to_lose',false,false,'—')}
     </div>
   </div>
 
-  <div class="divider">⸻ ✦ ⸻</div>
-
-  <!-- Психология -->
   <div class="section">
-    <div class="section-title"><span class="ornament">VIII.</span> Психология</div>
+    <div class="section-title">VIII — Психология</div>
     <div class="fields-grid">
-      ${fieldBlock('Темперамент', 'temperament', false, false, '—')}
-      ${fieldBlock('Тип личности (MBTI)', 'mbti', false, false, 'напр. INFJ')}
-      ${fieldBlock('Язык любви', 'love_language', false, false, '—')}
-      ${fieldBlock('Стиль привязанности', 'attachment', false, false, '—')}
+      ${f('Темперамент','temperament',false,false,'—')}
+      ${f('Тип личности (MBTI)','mbti',false,false,'напр. INFJ')}
+      ${f('Язык любви','love_language',false,false,'—')}
+      ${f('Стиль привязанности','attachment',false,false,'—')}
     </div>
-    <div class="fields-grid single" style="margin-top:14px;">
-      ${fieldBlock('Как ведёт себя в конфликте', 'in_conflict', true, false, '...')}
-      ${fieldBlock('Как переживает стресс', 'in_stress', true, false, '...')}
+    <div class="fields-grid single" style="margin-top:20px;">
+      ${f('Как ведёт себя в конфликте','in_conflict',true,false,'—')}
+      ${f('Как переживает стресс','in_stress',true,false,'—')}
     </div>
   </div>
 
-  <div class="divider">⸻ ✦ ⸻</div>
-
-  <!-- Навыки -->
   <div class="section">
-    <div class="section-title"><span class="ornament">IX.</span> Навыки</div>
+    <div class="section-title">IX — Навыки</div>
     <div class="fields-grid">
       <div class="field">
         <div class="field-label">Физические</div>
-        <div class="bullet-field">${tf('skill_phy_1','—')}</div>
-        <div class="bullet-field">${tf('skill_phy_2','—')}</div>
-        <div class="bullet-field">${tf('skill_phy_3','—')}</div>
+        <div class="bullet-field">${inp('skill_phy_1','—')}</div>
+        <div class="bullet-field">${inp('skill_phy_2','—')}</div>
+        <div class="bullet-field">${inp('skill_phy_3','—')}</div>
       </div>
       <div class="field">
         <div class="field-label">Интеллектуальные</div>
-        <div class="bullet-field">${tf('skill_int_1','—')}</div>
-        <div class="bullet-field">${tf('skill_int_2','—')}</div>
-        <div class="bullet-field">${tf('skill_int_3','—')}</div>
+        <div class="bullet-field">${inp('skill_int_1','—')}</div>
+        <div class="bullet-field">${inp('skill_int_2','—')}</div>
+        <div class="bullet-field">${inp('skill_int_3','—')}</div>
       </div>
     </div>
   </div>
 
-  <div class="divider">⸻ ✦ ⸻</div>
-
-  <!-- Арка персонажа -->
   <div class="section">
-    <div class="section-title"><span class="ornament">X.</span> Арка персонажа</div>
+    <div class="section-title">X — Арка персонажа</div>
     <div class="fields-grid single">
-      ${fieldBlock('В начале истории', 'arc_start', true, false, '...')}
-      ${fieldBlock('Что хочет получить', 'arc_want', true, false, '...')}
-      ${fieldBlock('Что ему действительно нужно', 'arc_need', true, false, '...')}
-      ${fieldBlock('Главный внутренний конфликт', 'arc_conflict', true, false, '...')}
-      ${fieldBlock('Переломный момент', 'arc_turning', true, false, '...')}
-      ${fieldBlock('Кем становится в финале', 'arc_end', true, false, '...')}
+      ${f('В начале истории','arc_start',true,false,'—')}
+      ${f('Что хочет получить','arc_want',true,false,'—')}
+      ${f('Что ему действительно нужно','arc_need',true,false,'—')}
+      ${f('Главный внутренний конфликт','arc_conflict',true,false,'—')}
+      ${f('Переломный момент','arc_turning',true,false,'—')}
+      ${f('Кем становится в финале','arc_end',true,false,'—')}
     </div>
   </div>
 
-  <div class="divider">⸻ ✦ ⸻</div>
-
-  <!-- Цитата -->
   <div class="section">
-    <div class="section-title"><span class="ornament">✦</span> Цитата персонажа</div>
-    <div class="quote-field">
-      <textarea data-field="quote" placeholder="..." rows="2">${getField('quote')}</textarea>
+    <div class="section-title">✦ Цитата</div>
+    <div class="quote-wrap">
+      <textarea data-field="quote" placeholder="..." rows="2" style="font-size:1.1rem;font-style:italic;text-align:center;color:var(--accent);">${esc(getField('quote'))}</textarea>
     </div>
   </div>
 
-  <div class="divider">⸻ ✦ ⸻</div>
-
-  <!-- Заметки -->
   <div class="section">
-    <div class="section-title"><span class="ornament">✦</span> Заметки</div>
-    <div class="fields-grid single">
-      ${fieldBlock('', 'notes', true, false, '...')}
-    </div>
+    <div class="section-title">✦ Заметки</div>
+    ${f('','notes',true,false,'...')}
   </div>
 
   <div style="height:60px;"></div>
   `;
 
-  document.getElementById('mainContent').innerHTML = html;
   bindEvents();
 }
 
 function bindEvents() {
-  // Text inputs
   document.querySelectorAll('input[type="text"][data-field], textarea[data-field]').forEach(el => {
     el.addEventListener('input', () => setField(el.dataset.field, el.value));
   });
-  // Checkboxes
   document.querySelectorAll('input[type="checkbox"][data-field]').forEach(el => {
     el.addEventListener('change', () => setField(el.dataset.field, el.checked ? '1' : '0'));
   });
 }
 
-function triggerPhoto() {
-  document.getElementById('photoInput').click();
-}
+function triggerPhoto() { document.getElementById('photoInput').click(); }
 
 function handlePhoto(e) {
   const file = e.target.files[0];
@@ -1019,10 +1218,229 @@ function removePhoto(e) {
   renderPage(currentChar);
 }
 
-// Init
 loadAll();
 buildSidebar();
 renderPage(0);
+
+// ── Export ──
+function buildExportText(idx) {
+  const d = data[idx] || {};
+  const g = k => d[k] || '—';
+  const chk = keys => keys.filter(k => d[k] === '1').map(k => ({
+    h_coffee:'Кофе', h_tea:'Чай', h_alcohol:'Алкоголь', h_smoking:'Курение',
+    h_sport:'Спорт', h_reading:'Чтение', h_music:'Музыка', h_night:'Поздно ложится',
+    h_early:'Рано встаёт', h_perf:'Перфекционист', h_mess:'Неряха', h_impuls:'Импульсивный',
+    mark_scar:'Шрам', mark_tattoo:'Татуировки', mark_mole:'Родинки', mark_piercing:'Пирсинг'
+  }[k])).join(', ') || '—';
+
+  return `✦ ДОСЬЕ ПЕРСОНАЖА — ${getCharName(idx).toUpperCase()}
+
+— ЛИЧНОЕ —
+Имя: ${g('first_name')}
+Фамилия: ${g('last_name')}
+Прозвище: ${g('nickname')}
+Возраст: ${g('age')}
+Дата рождения: ${g('birthday')}
+Профессия: ${g('profession')}
+Рост: ${g('height')}  Вес: ${g('weight')}
+Национальность: ${g('nationality')}
+Образование: ${g('education')}
+Место жительства: ${g('location')}
+
+— ВНЕШНОСТЬ —
+Волосы: ${g('hair')}  Глаза: ${g('eyes')}  Кожа: ${g('skin')}
+Телосложение: ${g('body')}
+Особые приметы: ${chk(['mark_scar','mark_tattoo','mark_mole','mark_piercing'])}${d.mark_other ? ', ' + d.mark_other : ''}
+Стиль одежды: ${g('style')}
+Парфюм: ${g('perfume')}
+Манера речи: ${g('speech')}
+Первое впечатление: ${g('impression')}
+
+— ХАРАКТЕР —
+Три главные черты: ${g('trait_1')}, ${g('trait_2')}, ${g('trait_3')}
+Сильные стороны: ${g('strengths')}
+Слабости: ${g('weaknesses')}
+Главный страх: ${g('fear')}
+Главная мечта: ${g('dream')}
+Главная цель: ${g('goal')}
+Что скрывает: ${g('secret')}
+Самая большая ложь самому себе: ${g('self_lie')}
+
+— ПРИВЫЧКИ —
+${chk(['h_coffee','h_tea','h_alcohol','h_smoking','h_sport','h_reading','h_music','h_night','h_early','h_perf','h_mess','h_impuls'])}${d.habit_other ? ', ' + d.habit_other : ''}
+
+— ЛЮБИМОЕ —
+Цвет: ${g('fav_color')}  Еда: ${g('fav_food')}  Напиток: ${g('fav_drink')}
+Музыка: ${g('fav_music')}  Фильм: ${g('fav_film')}  Сериал: ${g('fav_series')}
+Книга: ${g('fav_book')}  Время года: ${g('fav_season')}  Место: ${g('fav_place')}
+
+— ПРОШЛОЕ —
+Семья: ${g('family')}
+Детство: ${g('childhood')}
+Счастливое воспоминание: ${g('memory_happy')}
+Болезненное воспоминание: ${g('memory_painful')}
+Главная травма: ${g('trauma')}
+
+— ОТНОШЕНИЯ —
+Любовный интерес: ${g('love')}
+Лучший друг: ${g('bestfriend')}
+Враг: ${g('enemy')}
+Наставник: ${g('mentor')}
+Кому доверяет: ${g('trusts')}
+Кого боится потерять: ${g('afraid_to_lose')}
+
+— ПСИХОЛОГИЯ —
+Темперамент: ${g('temperament')}
+Тип личности: ${g('mbti')}
+Язык любви: ${g('love_language')}
+Стиль привязанности: ${g('attachment')}
+В конфликте: ${g('in_conflict')}
+В стрессе: ${g('in_stress')}
+
+— НАВЫКИ —
+Физические: ${[g('skill_phy_1'), g('skill_phy_2'), g('skill_phy_3')].filter(x=>x!=='—').join(', ') || '—'}
+Интеллектуальные: ${[g('skill_int_1'), g('skill_int_2'), g('skill_int_3')].filter(x=>x!=='—').join(', ') || '—'}
+
+— АРКА ПЕРСОНАЖА —
+В начале: ${g('arc_start')}
+Хочет получить: ${g('arc_want')}
+Действительно нужно: ${g('arc_need')}
+Внутренний конфликт: ${g('arc_conflict')}
+Переломный момент: ${g('arc_turning')}
+В финале: ${g('arc_end')}
+
+— ЦИТАТА —
+"${g('quote')}"
+
+— ЗАМЕТКИ —
+${g('notes')}`;
+}
+
+function openExport() {
+  const text = buildExportText(currentChar);
+  document.getElementById('exportText').textContent = text;
+  document.getElementById('exportOverlay').classList.add('open');
+}
+
+function closeExport() {
+  document.getElementById('exportOverlay').classList.remove('open');
+}
+
+function closeExportIfBg(e) {
+  if (e.target === document.getElementById('exportOverlay')) closeExport();
+}
+
+function copyExport() {
+  const text = document.getElementById('exportText').textContent;
+  navigator.clipboard.writeText(text).then(() => {
+    const s = document.getElementById('copyStatus');
+    s.classList.add('show');
+    setTimeout(() => s.classList.remove('show'), 2000);
+  });
+}
+
+// ── Chat ──
+let chatHistory = [];
+let chatCharIdx = -1;
+
+function openChat() {
+  if (chatCharIdx !== currentChar) {
+    chatHistory = [];
+    chatCharIdx = currentChar;
+    document.getElementById('chatMessages').innerHTML = `
+      <div class="chat-empty" id="chatEmpty">
+        <p>Claude прочитает всё досье<br>и ответит на твои вопросы<br>о персонаже</p>
+      </div>`;
+    document.getElementById('chatSuggestions').style.display = 'flex';
+  }
+  document.getElementById('chatCharName').textContent = getCharName(currentChar);
+  document.getElementById('chatOverlay').classList.add('open');
+}
+
+function closeChat() {
+  document.getElementById('chatOverlay').classList.remove('open');
+}
+
+function closeChatIfBg(e) {
+  if (e.target === document.getElementById('chatOverlay')) closeChat();
+}
+
+function handleChatKey(e) {
+  if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendChat(); }
+}
+
+function autoResizeInput(el) {
+  el.style.height = 'auto';
+  el.style.height = Math.min(el.scrollHeight, 100) + 'px';
+}
+
+function sendSuggestion(btn) {
+  document.getElementById('chatInput').value = btn.textContent;
+  sendChat();
+}
+
+function addMessage(role, text) {
+  const empty = document.getElementById('chatEmpty');
+  if (empty) empty.remove();
+  document.getElementById('chatSuggestions').style.display = 'none';
+
+  const msgs = document.getElementById('chatMessages');
+  const div = document.createElement('div');
+  div.className = `chat-msg ${role}`;
+  div.innerHTML = `
+    <div class="chat-msg-label">${role === 'user' ? 'Ты' : 'Claude'}</div>
+    <div class="chat-msg-bubble">${text.replace(/\n/g,'<br>')}</div>`;
+  msgs.appendChild(div);
+  msgs.scrollTop = msgs.scrollHeight;
+  return div;
+}
+
+async function sendChat() {
+  const input = document.getElementById('chatInput');
+  const userText = input.value.trim();
+  if (!userText) return;
+
+  const sendBtn = document.getElementById('sendBtn');
+  sendBtn.disabled = true;
+  input.value = '';
+  input.style.height = 'auto';
+
+  addMessage('user', userText);
+  chatHistory.push({ role: 'user', content: userText });
+
+  const thinkingDiv = addMessage('ai', '...');
+
+  const systemPrompt = `Ты — литературный ассистент. Ты помогаешь автору работать с персонажем. 
+Вот полное досье персонажа:
+
+${buildExportText(currentChar)}
+
+Отвечай вдумчиво, по-русски. Будь конкретным — ссылайся на детали из досье. 
+Не пересказывай досье целиком, а анализируй, предлагай идеи, задавай уточняющие вопросы если нужно.`;
+
+  try {
+    const response = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-6',
+        max_tokens: 1000,
+        system: systemPrompt,
+        messages: chatHistory
+      })
+    });
+
+    const result = await response.json();
+    const aiText = result.content?.map(b => b.text || '').join('') || 'Ошибка ответа.';
+    thinkingDiv.querySelector('.chat-msg-bubble').innerHTML = aiText.replace(/\n/g,'<br>');
+    chatHistory.push({ role: 'assistant', content: aiText });
+  } catch(e) {
+    thinkingDiv.querySelector('.chat-msg-bubble').textContent = 'Не удалось получить ответ. Проверь подключение.';
+  }
+
+  sendBtn.disabled = false;
+  document.getElementById('chatMessages').scrollTop = 999999;
+}
 </script>
 </body>
 </html>
